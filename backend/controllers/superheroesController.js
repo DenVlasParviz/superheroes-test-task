@@ -1,5 +1,5 @@
 const db = require('../sequelize/index');
-const superhero = require('../models/superheroes');
+const {Superhero, Image} = require('../models/index');
 
 class SuperheroesController {
 // POST: http://localhost:3000/api/superheroes сreate a supehero
@@ -12,8 +12,12 @@ class SuperheroesController {
                 superpowers,
                 catch_phrase
             } = req.body;
-
-            const hero = await superhero.create({
+            const existingHero = await Superhero.findOne({where: {nickname}});
+            console.log(nickname, existingHero,req.body);
+            if (existingHero) {
+                return res.status(400).json({error: "Superhero with this nickname already exists"});
+            }
+            const hero = await Superhero.create({
                 nickname,
                 real_name,
                 origin_description,
@@ -21,7 +25,22 @@ class SuperheroesController {
                 catch_phrase
             });
 
-            return res.status(201).json(hero);
+            if (!req.file) {
+                return res.status(400).json({error: "Image is required"});
+            }
+
+            await Image.create({
+                superhero_id: hero.id,
+                url: req.file.filename
+            });
+
+
+            const heroImg = await Superhero.findByPk(hero.id, {
+                include: {model: Image, as: 'images'}
+            })
+
+//TODO change heroimg to a normal name
+            return res.status(201).json(heroImg);
 
 
         } catch (e) {
@@ -34,10 +53,26 @@ class SuperheroesController {
 
         try {
 
-            const result = await superhero.findAll({
-                attributes: ["id", "nickname"]
+            const result = await Superhero.findAll({
+                attributes: ["id", "nickname", "real_name", "origin_description"],
+                include: {
+                    model: Image,
+                    as: 'images',
+                    attributes: ['url']
+                }
             });
-            return res.json(result)
+
+            // edit url for uploads file folder
+            const resultWithUrl = result.map(hero => ({
+                ...hero.toJSON(),
+                images: hero.images.map(img => ({
+                    url: `/uploads/${img.url.split('\\').pop().split('/').pop()}`
+                }))
+            }));
+
+            return res.json(resultWithUrl);
+
+
 
         } catch (e) {
             console.error("Error fetching superhero:", e);
@@ -45,15 +80,29 @@ class SuperheroesController {
         }
     }
 
-    async getHeroById(req, res) {
+    async getHeroByName(req, res) {
         try {
 
-            const id = req.params.id;
-            const result = await superhero.findByPk(id);
+            const nickname = req.params.nickname;
+            const result = await Superhero.findOne({
+                where: { nickname },
+                include: {
+                    model: Image,
+                    as: 'images',
+                    attributes: ['url']
+                }
+            });
             if (!result) {
-                return res.status(404).json({ error: "Superhero not found" });
+                return res.status(404).json({error: "Superhero not found"});
             }
-            res.json(result)
+            const heroWithUrl = {
+                ...result.toJSON(),
+                images: result.images.map(img => ({
+                    url: `/uploads/${img.url.split('\\').pop().split('/').pop()}`
+                }))
+            };
+
+            res.json(heroWithUrl)
         } catch (e) {
             console.error("Error fetching superhero:", e);
             return res.status(500).json({error: "Internal server error"});
@@ -62,22 +111,39 @@ class SuperheroesController {
 
 
     async updateSuperhero(req, res) {
-try{
+        try {
 
 
-        const {id} = req.params;
-        const {
-            nickname,
-            real_name,
-            origin_description,
-            superpowers,
-            catch_phrase
-        } = req.body;
+            const {id} = req.params;
+            const {
+                nickname,
+                real_name,
+                origin_description,
+                superpowers,
+                catch_phrase,
+                oldImages = []
+            } = req.body;
 
-        const hero = await superhero.findByPk(id);
-        if (!hero) {
-            return res.status(404).json({ error: "Superhero not found" });
-        }
+            const hero = await Superhero.findOne({where:{nickname},include:{
+                model: Image,
+                    as:'images'
+                }});
+            if (!hero) {
+                return res.status(404).json({error: "Superhero not found"});
+            }
+            if (nickname && nickname !== hero.nickname) {
+                const existingHero = await Superhero.findOne({where: {nickname}});
+                if (existingHero) {
+                    return res.status(400).json({error: "Superhero with this nickname already exists"});
+                }
+            }
+            const imagesToDelete = hero.images.filter(img => !oldImages.includes(img.url));
+            for (const img of imagesToDelete) await img.destroy();
+            if (req.files && req.files.length) {
+                for (const file of req.files) {
+                    await Image.create({ superhero_id: hero.id, url: file.filename });
+                }
+            }
         await hero.update({
             nickname: nickname ?? hero.nickname,
             real_name: real_name ?? hero.real_name,
@@ -85,35 +151,38 @@ try{
             superpowers: superpowers ?? hero.superpowers,
             catch_phrase: catch_phrase ?? hero.catch_phrase
         });
-        return res.json(hero);
+        return res.json(hero)
+        }
+        catch
+            (err)
+            {
+                console.error("Error updating superhero:", err);
+                return res.status(500).json({error: "Internal server error"});
+            }
+        }
+
+        async deleteSuperhero(req, res)
+        {
+            try {
+                const {id} = req.params;
+                const hero = await Superhero.findByPk(id);
+                if (!hero) {
+                    return res.status(404).json({error: "Superhero not found"});
+                }
+                await hero.destroy()
+
+                return res.json({message: "Superhero deleted successfully"});
 
 
-    }catch (err) {
-    console.error("Error updating superhero:", err);
-    return res.status(500).json({ error: "Internal server error" });
-}
+            } catch (err) {
+                console.error("Error deleting superhero:", err);
+                return res.status(500).json({error: "Internal server error"});
+            }
+        }
+
     }
 
-    async deleteSuperhero(req,res){
-        try{
-        const {id} = req.params;
-const hero = await superhero.findByPk(id);
-        if (!hero) {
-            return res.status(404).json({ error: "Superhero not found" });
-        }
-        await hero.destroy()
 
-        return res.json({ message: "Superhero deleted successfully" });
-
-
-
-    }catch (err) {
-            console.error("Error deleting superhero:", err);
-            return res.status(500).json({ error: "Internal server error" });
-        }
-    }
-
-}
-
-
-module.exports = new SuperheroesController();
+    module
+.
+    exports = new SuperheroesController();

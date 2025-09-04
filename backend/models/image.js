@@ -4,7 +4,7 @@ const { Model } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
     class Image extends Model {
         static associate(models) {
-            Image.belongsTo(models.superheroes, {
+            Image.belongsTo(models.Superhero, {
                 foreignKey: 'superhero_id',
                 as: 'superhero'
             });
@@ -20,6 +20,11 @@ module.exports = (sequelize, DataTypes) => {
             url: {
                 type: DataTypes.STRING,
                 allowNull: false
+            },
+            fullUrl:{
+                type: DataTypes.VIRTUAL,
+                get(){
+                    return `http://localhost:3000/${this.url.replace(/\\/g, '/')}`;                }
             }
         },
         {

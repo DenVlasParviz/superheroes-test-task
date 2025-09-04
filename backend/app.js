@@ -1,6 +1,7 @@
 
 const pool = require("./db/index");
 const superheroesRoute = require("./routes/api/superheroesRoute");
+const path = require('path');
 
 const express = require("express");
 const port = 3000;
@@ -12,6 +13,7 @@ app.use(express.json());
 
 
 app.use("/api/superheroes",superheroesRoute);
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 pool.connect()
     .then(client => {
