@@ -88,7 +88,7 @@ export default {
   props: ["nickname"],
   data() {
     return {
-      hero: null,
+      hero: [],
       currentImageIndex: 0
     };
   },

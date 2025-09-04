@@ -14,8 +14,8 @@
 
         <!-- Add -->
         <div class="flex items-center">
-          <button
-              @click="$emit('create')"
+          <router-link
+              to="/addHero"
               class="inline-flex items-center gap-2 px-3 py-1 bg-white text-red-500 rounded-full shadow hover:scale-105 transition-transform"
               aria-label="Add new superhero"
           >
@@ -23,7 +23,7 @@
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
             </svg>
             Add new superhero
-          </button>
+          </router-link>
         </div>
       </div>
     </div>

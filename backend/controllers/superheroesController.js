@@ -1,9 +1,18 @@
 const db = require('../sequelize/index');
 const {Superhero, Image} = require('../models/index');
+const fs = require('fs');
+const path = require('path')
+const {deleteFileFromUploads} = require('../utils/file')
 
 class SuperheroesController {
+
+
+
+
+
 // POST: http://localhost:3000/api/superheroes сreate a supehero
     async createSuperhero(req, res) {
+        const transaction = await db.transaction();
         try {
             const {
                 nickname,
@@ -12,8 +21,11 @@ class SuperheroesController {
                 superpowers,
                 catch_phrase
             } = req.body;
-            const existingHero = await Superhero.findOne({where: {nickname}});
-            console.log(nickname, existingHero,req.body);
+
+            if (!req.files || !req.files.length) {
+                return res.status(400).json({error: "at least one image is required"});
+            }
+            const existingHero = await Superhero.findOne({where: {nickname},transaction});
             if (existingHero) {
                 return res.status(400).json({error: "Superhero with this nickname already exists"});
             }
@@ -23,16 +35,18 @@ class SuperheroesController {
                 origin_description,
                 superpowers,
                 catch_phrase
-            });
+            },{transaction});
+            const imagePromises = req.files.map(file =>
+                Image.create({
+                    superhero_id: hero.id,
+                    url: file.filename
+                }, { transaction })
+            );
+            await Promise.all(imagePromises);
+            await transaction.commit();
 
-            if (!req.file) {
-                return res.status(400).json({error: "Image is required"});
-            }
 
-            await Image.create({
-                superhero_id: hero.id,
-                url: req.file.filename
-            });
+
 
 
             const heroImg = await Superhero.findByPk(hero.id, {
@@ -44,6 +58,7 @@ class SuperheroesController {
 
 
         } catch (e) {
+            await transaction.rollback();
             console.error("Error creating superhero:", e);
             return res.status(500).json({error: "Internal server error"});
         }
@@ -112,9 +127,6 @@ class SuperheroesController {
 
     async updateSuperhero(req, res) {
         try {
-
-
-            const {id} = req.params;
             const {
                 nickname,
                 real_name,
@@ -138,9 +150,16 @@ class SuperheroesController {
                 }
             }
             const imagesToDelete = hero.images.filter(img => !oldImages.includes(img.url));
-            for (const img of imagesToDelete) await img.destroy();
+            for (const img of imagesToDelete) {
+                deleteFileFromUploads(img.url);
+
+                await img.destroy();
+
+            }
+
             if (req.files && req.files.length) {
                 for (const file of req.files) {
+
                     await Image.create({ superhero_id: hero.id, url: file.filename });
                 }
             }
@@ -163,18 +182,44 @@ class SuperheroesController {
 
         async deleteSuperhero(req, res)
         {
+            const transaction = await db.transaction();
+
             try {
+
                 const {id} = req.params;
-                const hero = await Superhero.findByPk(id);
+                const hero = await Superhero.findByPk(id, {
+                    include: {
+                        model: Image,
+                        as: 'images'
+                    },transaction
+                });
+
+
                 if (!hero) {
+                    await transaction.rollback();
+
                     return res.status(404).json({error: "Superhero not found"});
                 }
-                await hero.destroy()
+
+                if (hero.images && hero.images.length > 0) {
+                    for (let i = 0; i < hero.images.length; i++) {
+                        const img = hero.images[i];
+                        console.log(img.url);
+                        deleteFileFromUploads(img.url);
+                        await img.destroy({ transaction });
+                    }
+                }
+                await hero.destroy({ transaction });
+
+                await transaction.commit();
+
 
                 return res.json({message: "Superhero deleted successfully"});
 
 
             } catch (err) {
+                await transaction.rollback();
+
                 console.error("Error deleting superhero:", err);
                 return res.status(500).json({error: "Internal server error"});
             }
@@ -183,6 +228,4 @@ class SuperheroesController {
     }
 
 
-    module
-.
-    exports = new SuperheroesController();
+    module.exports = new SuperheroesController();

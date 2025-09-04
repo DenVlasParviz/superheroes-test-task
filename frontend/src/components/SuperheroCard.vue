@@ -1,4 +1,6 @@
 <template>
+  <div class="relative bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-md">
+
   <router-link
       :to="{ name: 'HeroDetail', params: { nickname: hero.nickname } }"
       class="block bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-md"
@@ -19,15 +21,19 @@
     <div class="p-3">
       <div class="text-sm font-semibold">{{ hero.nickname }}</div>
     </div>
-    <button
-        class="cursor-pointer rounded bg-amber-200  w-full text-center flex items-center justify-center">
-      Text
-    </button>
+
   </router-link>
+    <button
+        @click="deleteCard()"
+        class="cursor-pointer rounded bg-red-400  hover:bg-sky-600 transition-transform w-full text-center flex items-center justify-center">
+      Delete
+    </button>
+  </div>
 </template>
 
 <script>
 import { API_BASE_URL } from '../main.js';
+import axios from "axios";
 
 export default {
   name: 'SuperheroCard',
@@ -48,6 +54,22 @@ export default {
       const cleaned = path.replace(/\\/g, '/').replace(/^\/+/, '');
       const base = API_BASE_URL || '';
       return base.replace(/\/+$/, '') + '/' + cleaned;
+    },
+async    deleteCard(id){
+      try{
+        if (!confirm(`Are you sure you want to delete ${this.hero.nickname}?`)) {
+          return;
+        }
+        await axios.delete(`${API_BASE_URL}/api/superheroes/${this.hero.id}`);
+        this.$emit('hero-deleted', this.hero.id);
+        alert('Hero deleted');
+
+
+      }catch (error) {
+        console.error('error deleting hero:', error);
+        alert('Error deleting hero');
+      }
+
     }
   },
 };

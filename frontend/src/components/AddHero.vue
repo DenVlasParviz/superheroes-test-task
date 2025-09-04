@@ -2,7 +2,7 @@
   <div class="max-w-3xl mx-auto p-6">
     <h1 class="text-2xl font-bold mb-6">Edit info</h1>
 
-    <form @submit.prevent="" class="space-y-4">
+    <form @submit.prevent="onSubmit"  class="space-y-4">
 
       <div>
         <label class="block font-semibold mb-1" for="nickname">Nickname</label>
@@ -58,21 +58,6 @@
       <div>
         <label class="block font-semibold mb-2">Images</label>
         <div class="flex flex-wrap gap-4">
-          <!--Old images-->
-          <div
-              v-for="(img, index) in hero.images"
-              :key="index"
-              class="relative w-32 h-32 border rounded overflow-hidden"
-          >
-            <img :src="imageUrl(img.url)" alt="Hero image" class="w-full h-full object-cover"/>
-            <button
-                type="button"
-                @click="removeImg(hero.images, index)"
-                class="absolute top-1 right-1 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm cursor-pointer "
-            >
-              ×
-            </button>
-          </div>
           <div
               v-for="(file, index) in newImages"
               :key="'new-' + index"
@@ -102,7 +87,7 @@
         <button
             type="submit"
             class="bg-blue-500 text-white font-semibold px-6 py-2 rounded hover:bg-blue-600 transition cursor-pointer"
-            @click="saveHero"
+            @click=""
         >
           Save
         </button>
@@ -112,11 +97,12 @@
   </div>
 </template>
 <script>
+
+
 import axios from "axios";
 import {API_BASE_URL} from "../main.js";
 
 export default {
-  props: ["nickname"],
 
   data() {
     return {
@@ -126,65 +112,47 @@ export default {
         origin_description: '',
         superpowers: '',
         catch_phrase: '',
-        images: [],
       },
       newImages: []
     }
   },
-  methods: {
-    imageUrl(path) {
-      const cleaned = path.replace(/\\/g, '/').replace(/^\/+/, '');
-      const base = API_BASE_URL || '';
-      return base.replace(/\/+$/, '') + '/' + cleaned;
-    },
+  methods:{
     onFileSelected(event) {
       const files = Array.from(event.target.files)
       this.newImages.push(...files)
     },
-
-    // opens window to load a file from pc
     previewFile(file) {
       return window.URL.createObjectURL(file);
     },
     removeImg(array, index) {
       array.splice(index, 1);
     },
-
-
-    async saveHero() {
-      const {nickname, real_name, origin_description, superpowers, catch_phrase, images} = this.hero;
-      const formData = new FormData();
-      formData.append('nickname', nickname);
-      formData.append('real_name', real_name);
-      formData.append('origin_description', origin_description);
-      formData.append('superpowers', superpowers);
-      formData.append('catch_phrase', catch_phrase);
-
-      images.forEach(img => {
-        formData.append('oldImages[]', img.url.split('/').pop());
-      });
-      //updating nickname causes error because it overwrites url
-// TODO try to fix nickname by not changing URL
-      this.newImages.forEach(image => {
-        formData.append('newImages', image);
-      })
+    async onSubmit() {
       try {
-        await axios.put(`http://localhost:3000/api/superheroes/edit/${nickname}`, formData,
-            {headers: {'Content-Type': 'multipart/form-data'}});
-        alert("Update has been completed")
-        this.newImages = [];
-      } catch (err) {
-        console.log(err)
-        alert('Ошибка при обновлении героя');
+
+        const formData = new FormData();
+        Object.keys(this.hero).forEach(key => {
+          formData.append(key, this.hero[key]);
+        })
+        this.newImages.forEach(image => {
+          formData.append('newImages', image);
+        })
+        await axios.post(`${API_BASE_URL}/api/superheroes`,formData)
+        alert('Hero added successfully!');
+
+        this.$router.push('/');
+      } catch (e) {
+        console.error('Error:', e);
+        alert(e.response?.data?.error );
       }
+
     }
   },
-  async mounted() {
-    const res = await axios.get(`http://localhost:3000/api/superheroes/getHero/${this.nickname}`);
-    this.hero = res.data
-  },
+
+
 
 }
+
 
 </script>
 
