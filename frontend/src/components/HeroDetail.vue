@@ -1,13 +1,17 @@
 <template>
   <div class="max-w-5xl mx-auto p-6 space-y-6 bg-gray-100">
-   <div class='justify-end  flex '>
-    <router-link
-        :to="{ name: 'EditHero', params: { nickname } }"
-        class="text-blue-500 hover:underline inline-flex  rounded-full border border-dashed hover:scale-105 transition-transform shadow-lg px-4 py-2 font-semibold "
-    >
-      Edit
-    </router-link>
-   </div>
+    <div class="flex items-center justify-between">
+      <blockquote class="relative border-l-4 border-gray-400 pl-6 italic text-gray-700">
+        “{{ hero.catch_phrase }}”
+        <footer class="text-right mt-2 text-gray-500">— {{ hero.nickname }}</footer>
+      </blockquote>
+      <router-link
+          :to="{ name: 'EditHero', params: { nickname } }"
+          class="text-blue-500 hover:underline inline-flex rounded-full border border-dashed hover:scale-105 transition-transform shadow-lg px-4 py-2 font-semibold"
+      >
+        Edit
+      </router-link>
+    </div>
 
     <!-- main block   -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -16,15 +20,15 @@
       <!-- left block -->
       <div class="md:col-span-2 bg-gray-100 p-4 rounded">
         <h2 class="font-bold border-b border-gray-400 pb-1 mb-4">
-          Appearance
+          General Information
         </h2>
-        <p>
-         {{hero.origin_description}}
+        <p class=" leading-relaxed text-base">
+          {{ hero.origin_description }}
         </p>
       </div>
 
       <!-- right block -->
-      <div class="bg-gray-200 p-4 rounded text-center">
+      <div class="bg-gray-200 p-4 rounded text-center max-w-full break-words">
         <h2 class="text-lg font-bold  border-b border-gray-400 pb-1 mb-4">{{ hero?.nickname }}</h2>
         <div class='relative' v-if="hero && hero.images && hero.images.length">
           <img
@@ -59,7 +63,7 @@
               <div>{{ hero.real_name }}</div>
             </div>
             <div class="grid grid-cols-2 py-2">
-              <div class="font-semibold">Superpowers</div>
+              <div class=" break-words font-semibold">Superpowers</div>
               <div>{{ hero.superpowers }}</div>
             </div>
             <div class="grid grid-cols-2 py-2 border-b border-gray-300">
@@ -73,7 +77,6 @@
       </div>
 
     </div>
-
 
 
   </div>
@@ -108,6 +111,17 @@ export default {
     nextImage() {
       if (this.currentImageIndex < this.hero.images.length - 1) this.currentImageIndex++;
     }
-  }
+  },
+  watch: {
+    hero: {
+      handler(newHero) {
+        if (newHero && newHero.nickname) {
+          document.title = `${newHero.nickname} — Hero Details`;
+        }
+      },
+      immediate: true,
+      deep: true
+    }
+  },
 };
 </script>

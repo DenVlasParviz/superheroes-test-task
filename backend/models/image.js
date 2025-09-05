@@ -24,7 +24,7 @@ module.exports = (sequelize, DataTypes) => {
             fullUrl:{
                 type: DataTypes.VIRTUAL,
                 get(){
-                    return `http://localhost:3000/${this.url.replace(/\\/g, '/')}`;                }
+                    return `${process.env.BASE_URL}/${this.url.replace(/\\/g, '/')}`;                }
             }
         },
         {

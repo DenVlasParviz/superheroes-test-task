@@ -11,13 +11,13 @@
     </div>
 
 
-    <!--  PAGINATION  -->
+    <!--  Pagination  -->
 
-    <div  class="flex justify-center items-center mt-8 space-x-2" >
+    <div class="flex justify-center items-center mt-8 space-x-2">
       <button @click="goToPage(currentPage - 1)" :disabled="currentPage===1"
               class="px-3 py-1 rounded bg-gray-200 hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed"
       >
-        PREV
+        Prev
       </button>
 
       <button
@@ -37,7 +37,7 @@
       <button @click="goToPage(currentPage+1)" :disabled="currentPage===totalPages"
               class="px-3 py-1 rounded bg-gray-200 hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed"
 
-      >NEXT
+      >Next
       </button>
     </div>
 
@@ -70,7 +70,7 @@ export default {
   computed: {
 
     totalPages() {
-      return  Math.ceil(this.heroes.length / this.cardsPerPage);
+      return Math.ceil(this.heroes.length / this.cardsPerPage);
     },
     startIndex() {
       return (this.currentPage - 1) * this.cardsPerPage;

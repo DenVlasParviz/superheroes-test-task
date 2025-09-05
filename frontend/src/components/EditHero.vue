@@ -83,7 +83,7 @@
           <!-- New images  -->
           <div
               class="w-32 h-32 border border-dashed rounded flex items-center justify-center text-gray-400 cursor-pointer relative">
-            <input type="file"  accept=".png,.jpg,.jpeg" multiple class="opacity-0 absolute inset-0 cursor-pointer" @change="onFileSelected">
+            <input type="file"  accept=".png,.jpg,.jpeg, .webp" multiple class="opacity-0 absolute inset-0 cursor-pointer" @change="onFileSelected">
             + Add
           </div>
         </div>

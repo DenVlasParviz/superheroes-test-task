@@ -66,9 +66,10 @@
             >×</button>
           </div>
           <!-- New images  -->
+
           <div
               class="w-32 h-32 border border-dashed rounded flex items-center justify-center text-gray-400 cursor-pointer relative">
-            <input type="file" accept=".png,.jpg,.jpeg" multiple class="opacity-0 absolute inset-0 cursor-pointer" @change="onFileSelected">
+            <input type="file" accept=".png,.jpg,.jpeg, .webp" multiple class="opacity-0 absolute inset-0 cursor-pointer" @change="onFileSelected">
             + Add
           </div>
         </div>
@@ -81,8 +82,7 @@
         <button
             type="submit"
             class="bg-blue-500 text-white font-semibold px-6 py-2 rounded hover:bg-blue-600 transition cursor-pointer"
-            @click=""
-        >
+            @click="">
           Save
         </button>
       </div>

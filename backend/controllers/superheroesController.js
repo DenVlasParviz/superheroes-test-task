@@ -1,7 +1,5 @@
 const db = require('../sequelize/index');
 const {Superhero, Image} = require('../models/index');
-const fs = require('fs');
-const path = require('path')
 const {deleteFileFromUploads} = require('../utils/file')
 
 class SuperheroesController {
@@ -10,7 +8,6 @@ class SuperheroesController {
 
 
 
-// POST: http://localhost:3000/api/superheroes сreate a supehero
     async createSuperhero(req, res) {
         const transaction = await db.transaction();
         try {
@@ -23,10 +20,12 @@ class SuperheroesController {
             } = req.body;
 
             if (!req.files || !req.files.length) {
+                await transaction.rollback();
                 return res.status(400).json({error: "at least one image is required"});
             }
             const existingHero = await Superhero.findOne({where: {nickname},transaction});
             if (existingHero) {
+                await transaction.rollback();
                 return res.status(400).json({error: "Superhero with this nickname already exists"});
             }
             const hero = await Superhero.create({
@@ -36,6 +35,7 @@ class SuperheroesController {
                 superpowers,
                 catch_phrase
             },{transaction});
+
             const imagePromises = req.files.map(file =>
                 Image.create({
                     superhero_id: hero.id,
@@ -45,15 +45,10 @@ class SuperheroesController {
             await Promise.all(imagePromises);
             await transaction.commit();
 
-
-
-
-
             const heroImg = await Superhero.findByPk(hero.id, {
                 include: {model: Image, as: 'images'}
             })
 
-//TODO change heroimg to a normal name
             return res.status(201).json(heroImg);
 
 
@@ -77,7 +72,7 @@ class SuperheroesController {
                 }
             });
 
-            // edit url for uploads file folder
+            // edits url for uploads file folder
             const resultWithUrl = result.map(hero => ({
                 ...hero.toJSON(),
                 images: hero.images.map(img => ({
@@ -126,6 +121,7 @@ class SuperheroesController {
 
 
     async updateSuperhero(req, res) {
+        const transaction = await db.transaction();
         try {
             const {
                 nickname,
@@ -139,13 +135,15 @@ class SuperheroesController {
             const hero = await Superhero.findOne({where:{nickname},include:{
                 model: Image,
                     as:'images'
-                }});
+                },transaction});
             if (!hero) {
+                await transaction.rollback();
                 return res.status(404).json({error: "Superhero not found"});
             }
             if (nickname && nickname !== hero.nickname) {
                 const existingHero = await Superhero.findOne({where: {nickname}});
                 if (existingHero) {
+                    await transaction.rollback();
                     return res.status(400).json({error: "Superhero with this nickname already exists"});
                 }
             }
@@ -169,7 +167,8 @@ class SuperheroesController {
             origin_description: origin_description ?? hero.origin_description,
             superpowers: superpowers ?? hero.superpowers,
             catch_phrase: catch_phrase ?? hero.catch_phrase
-        });
+        },{transaction});
+            await transaction.commit();
         return res.json(hero)
         }
         catch
@@ -182,6 +181,7 @@ class SuperheroesController {
 
         async deleteSuperhero(req, res)
         {
+
             const transaction = await db.transaction();
 
             try {
@@ -197,7 +197,6 @@ class SuperheroesController {
 
                 if (!hero) {
                     await transaction.rollback();
-
                     return res.status(404).json({error: "Superhero not found"});
                 }
 
@@ -205,7 +204,7 @@ class SuperheroesController {
                     for (let i = 0; i < hero.images.length; i++) {
                         const img = hero.images[i];
                         console.log(img.url);
-                        deleteFileFromUploads(img.url);
+                        await deleteFileFromUploads(img.url);
                         await img.destroy({ transaction });
                     }
                 }
