@@ -7,6 +7,7 @@ A full-stack web application (Vue.js + Node.js + PostgreSQL) built for a JavaScr
 - [Environment Variables (.env)](#environment-variables-env)
 - [Local Installation and Running](#local-installation-and-running)
 - [Database Schema](#database-schema)
+- [Assumptions](#assumptions)
 - [Screenshots](#screenshots)
 
 ---
@@ -87,8 +88,21 @@ erDiagram
         timestamp updated_at
     }
    ```
+
 **Database relation:**  
 `superheroes.id (PK)` → `images.superhero_id (FK)`
+
+## Assumptions
+## Assumptions
+
+- Images are stored in the public `uploads` folder and are deleted when a superhero is deleted or when some of its images are removed.
+- Requests to modify or check an existing superhero are done by `nickname`, assuming that each superhero is unique.
+- `nickname` is unique for each superhero.
+- If a superhero has no images, the first letter of their nickname is displayed.
+- Demo superheroes are created automatically during migration.
+- Axios is used for API requests.
+- Frontend uses Tailwind CSS;
+
 ## Screenshots
 <img width="1915" height="941" alt="RvRvpnGui_3JyFqFax3I" src="https://github.com/user-attachments/assets/d898c145-3e23-41d7-b3d7-bbca9f913857" />
 <img width="1463" height="929" alt="firefox_38eYhZxgbr" src="https://github.com/user-attachments/assets/61a840f4-d31b-4ad8-8e4c-eeac9e78b342" />
