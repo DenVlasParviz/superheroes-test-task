@@ -95,7 +95,7 @@ erDiagram
 ## Assumptions
 ## Assumptions
 
-- Images are stored in the public `uploads` folder and are deleted when a superhero is deleted or when some of its images are removed.
+- Images are stored in the public `uploads` folder, uploaded only from the local computer, and are deleted when a superhero is deleted or when some of its images are removed.
 - Requests to modify or check an existing superhero are done by `nickname`, assuming that each superhero is unique.
 - `nickname` is unique for each superhero.
 - If a superhero has no images, the first letter of their nickname is displayed.
