@@ -116,6 +116,9 @@ export default {
         this.closeModal();
         alert('Error deleting hero');
       }
+      finally{
+        document.body.style.overflow = '';
+      }
     },
 
     async deleteCard() {
