@@ -8,6 +8,7 @@
     "start": "node app.js",
     "dev": "nodemon app.js",
     "migrate:push": "npx sequelize-cli db:migrate",
+    "migrate:create": "npx sequelize db:create",
     "migrate:undo": "npx sequelize-cli db:migrate:undo"
   },
   "keywords": [],
@@ -16,6 +17,7 @@
   "type": "commonjs",
   "dependencies": {
     "cors": "^2.8.5",
+    "dotenv": "^17.2.2",
     "express": "^5.1.0",
     "multer": "^2.0.2",
     "pg": "^8.16.3",
