@@ -93,7 +93,6 @@ erDiagram
 `superheroes.id (PK)` → `images.superhero_id (FK)`
 
 ## Assumptions
-## Assumptions
 
 - Images are stored in the public `uploads` folder, uploaded only from the local computer, and are deleted when a superhero is deleted or when some of its images are removed.
 - Requests to modify or check an existing superhero are done by `nickname`, assuming that each superhero is unique.
