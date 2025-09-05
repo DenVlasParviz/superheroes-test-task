@@ -1,5 +1,5 @@
 <template>
-  <div class="max-w-4xl mx-auto px-4 py-5">
+  <div class="max-w-4xl mx-auto px-4 py-5 ">
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
       <SuperheroCard
           v-for="h in currentCards"
@@ -13,7 +13,7 @@
 
     <!--  PAGINATION  -->
 
-    <div class="flex justify-center items-center mt-8 space-x-2" >
+    <div  class="flex justify-center items-center mt-8 space-x-2" >
       <button @click="goToPage(currentPage - 1)" :disabled="currentPage===1"
               class="px-3 py-1 rounded bg-gray-200 hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed"
       >
@@ -47,6 +47,7 @@
 <script>
 import SuperheroCard from './SuperheroCard.vue';
 import axios from "axios";
+import {API_BASE_URL} from "../main.js";
 
 export default {
   name: 'SuperheroGrid',
@@ -102,7 +103,7 @@ export default {
 
   async created() {
     try {
-      const res = await axios.get('http://localhost:3000/api/superheroes/getAll');
+      const res = await axios.get(`${API_BASE_URL}/api/superheroes/getAll`);
       this.heroes = res.data
     } catch (e) {
       console.error('Failed to fetch heroes in SuperheroGrid:', e);

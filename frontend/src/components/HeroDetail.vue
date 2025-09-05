@@ -3,7 +3,7 @@
    <div class='justify-end  flex '>
     <router-link
         :to="{ name: 'EditHero', params: { nickname } }"
-        class="text-blue-500 hover:underline inline-flex  rounded-full shadow hover:scale-105 transition-transform  px-4 py-2 font-semibold "
+        class="text-blue-500 hover:underline inline-flex  rounded-full border border-dashed hover:scale-105 transition-transform shadow-lg px-4 py-2 font-semibold "
     >
       Edit
     </router-link>
@@ -29,7 +29,7 @@
         <div class='relative' v-if="hero && hero.images && hero.images.length">
           <img
               :src="imageUrl(hero.images[currentImageIndex].url)"
-              class="w-full rounded-lg mb-2 w-48 h-85"
+              class="w-full rounded-lg mb-2  h-85" alt="Image"
           />
           <div class="flex justify-between mt-2">
             <!-- prev button -->
@@ -93,7 +93,7 @@ export default {
     };
   },
   async created() {
-    const res = await axios.get(`http://localhost:3000/api/superheroes/getHero/${this.nickname}`);
+    const res = await axios.get(`${API_BASE_URL}/api/superheroes/getHero/${this.nickname}`);
     this.hero = res.data
   },
   methods: {

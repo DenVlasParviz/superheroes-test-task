@@ -1,9 +1,9 @@
 <template>
-  <div class="relative bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-md">
+  <div class="relative bg-white rounded-lg overflow-hidden shadow-md hover:shadow-2xl transform transition-transform duration-300 hover:-translate-y-2">
 
   <router-link
       :to="{ name: 'HeroDetail', params: { nickname: hero.nickname } }"
-      class="block bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-md"
+      class="block bg-white rounded-lg overflow-hidden"
   >
     <div class="w-full h-40 bg-gray-100">
       <img
@@ -25,7 +25,7 @@
   </router-link>
     <button
         @click="deleteCard()"
-        class="cursor-pointer rounded bg-red-400  hover:bg-sky-600 transition-transform w-full text-center flex items-center justify-center">
+        class="cursor-pointer rounded bg-red-400  hover:bg-red-600 transition-colors w-full  flex  justify-center">
       Delete
     </button>
   </div>

@@ -1,23 +1,20 @@
 <template>
   <div class="max-w-3xl mx-auto p-6">
-    <h1 class="text-2xl font-bold mb-6">Edit info</h1>
+    <div class="py-2">
+      <router-link
+          class="text-blue-500 hover:underline inline-flex  rounded-full border  hover:scale-105 transition-transform shadow-lg px-4 py-2 font-semibold"
+          :to="{ name: 'HeroDetail', params: { nickname} }"
+      >
+        Back to Superhero
+      </router-link>
+    </div>
+
+    <h1 class="text-2xl font-bold mb-6 pt-5 ">Edit info</h1>
 
     <form @submit.prevent="" class="space-y-4">
-
-      <div>
-        <label class="block font-semibold mb-1" for="nickname">Nickname</label>
-        <input
-            id="nickname"
-            v-model="hero.nickname"
-            type="text"
-            class="w-full border rounded px-3 py-2"
-        />
-      </div>
-
       <div>
         <label class="block font-semibold mb-1" for="real_name">Real Name</label>
         <input
-            id="real_name"
             v-model="hero.real_name"
             type="text"
             class="w-full border rounded px-3 py-2"
@@ -27,7 +24,6 @@
       <div>
         <label class="block font-semibold mb-1" for="origin_description">Origin Description</label>
         <textarea
-            id="origin_description"
             v-model="hero.origin_description"
             rows="4"
             class="w-full border rounded px-3 py-2"
@@ -37,7 +33,6 @@
       <div>
         <label class="block font-semibold mb-1" for="superpowers">Superpowers</label>
         <textarea
-            id="superpowers"
             v-model="hero.superpowers"
             rows="3"
             class="w-full border rounded px-3 py-2"
@@ -47,7 +42,6 @@
       <div>
         <label class="block font-semibold mb-1" for="catch_phrase">Catch Phrase</label>
         <input
-            id="catch_phrase"
             v-model="hero.catch_phrase"
             type="text"
             class="w-full border rounded px-3 py-2"
@@ -89,7 +83,7 @@
           <!-- New images  -->
           <div
               class="w-32 h-32 border border-dashed rounded flex items-center justify-center text-gray-400 cursor-pointer relative">
-            <input type="file" multiple class="opacity-0 absolute inset-0 cursor-pointer" @change="onFileSelected">
+            <input type="file"  accept=".png,.jpg,.jpeg" multiple class="opacity-0 absolute inset-0 cursor-pointer" @change="onFileSelected">
             + Add
           </div>
         </div>
@@ -121,7 +115,7 @@ export default {
   data() {
     return {
       hero: {
-        nickname: '',
+        nickname:'',
         real_name: '',
         origin_description: '',
         superpowers: '',
@@ -134,8 +128,7 @@ export default {
   methods: {
     imageUrl(path) {
       const cleaned = path.replace(/\\/g, '/').replace(/^\/+/, '');
-      const base = API_BASE_URL || '';
-      return base.replace(/\/+$/, '') + '/' + cleaned;
+      return API_BASE_URL.replace(/\/+$/, '') + '/' + cleaned;
     },
     onFileSelected(event) {
       const files = Array.from(event.target.files)
@@ -152,7 +145,8 @@ export default {
 
 
     async saveHero() {
-      const {nickname, real_name, origin_description, superpowers, catch_phrase, images} = this.hero;
+      // updating nickname in input form causes an error, requires somehow edit because it overwrites url link
+      const {nickname,real_name, origin_description, superpowers, catch_phrase, images} = this.hero;
       const formData = new FormData();
       formData.append('nickname', nickname);
       formData.append('real_name', real_name);
@@ -163,24 +157,23 @@ export default {
       images.forEach(img => {
         formData.append('oldImages[]', img.url.split('/').pop());
       });
-      //updating nickname causes error because it overwrites url
-// TODO try to fix nickname by not changing URL
+
       this.newImages.forEach(image => {
         formData.append('newImages', image);
       })
       try {
-        await axios.put(`http://localhost:3000/api/superheroes/edit/${nickname}`, formData,
+        await axios.put(`${API_BASE_URL}/api/superheroes/edit/${nickname}`, formData,
             {headers: {'Content-Type': 'multipart/form-data'}});
         alert("Update has been completed")
         this.newImages = [];
       } catch (err) {
         console.log(err)
-        alert('Ошибка при обновлении героя');
+        alert('Error adding hero');
       }
     }
   },
   async mounted() {
-    const res = await axios.get(`http://localhost:3000/api/superheroes/getHero/${this.nickname}`);
+    const res = await axios.get(`${API_BASE_URL}/api/superheroes/getHero/${this.nickname}`);
     this.hero = res.data
   },
 

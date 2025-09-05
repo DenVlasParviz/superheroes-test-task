@@ -1,13 +1,12 @@
 <template>
   <div class="max-w-3xl mx-auto p-6">
-    <h1 class="text-2xl font-bold mb-6">Edit info</h1>
+    <h1 class="text-2xl font-bold mb-6">Add new superhero</h1>
 
     <form @submit.prevent="onSubmit"  class="space-y-4">
 
       <div>
         <label class="block font-semibold mb-1" for="nickname">Nickname</label>
         <input
-            id="nickname"
             v-model="hero.nickname"
             type="text"
             class="w-full border rounded px-3 py-2"
@@ -17,7 +16,6 @@
       <div>
         <label class="block font-semibold mb-1" for="real_name">Real Name</label>
         <input
-            id="real_name"
             v-model="hero.real_name"
             type="text"
             class="w-full border rounded px-3 py-2"
@@ -27,7 +25,6 @@
       <div>
         <label class="block font-semibold mb-1" for="origin_description">Origin Description</label>
         <textarea
-            id="origin_description"
             v-model="hero.origin_description"
             rows="4"
             class="w-full border rounded px-3 py-2"
@@ -37,7 +34,6 @@
       <div>
         <label class="block font-semibold mb-1" for="superpowers">Superpowers</label>
         <textarea
-            id="superpowers"
             v-model="hero.superpowers"
             rows="3"
             class="w-full border rounded px-3 py-2"
@@ -47,7 +43,6 @@
       <div>
         <label class="block font-semibold mb-1" for="catch_phrase">Catch Phrase</label>
         <input
-            id="catch_phrase"
             v-model="hero.catch_phrase"
             type="text"
             class="w-full border rounded px-3 py-2"
@@ -68,13 +63,12 @@
                 type="button"
                 @click="removeImg(newImages,index)"
                 class="absolute top-1 right-1 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm "
-            >×
-            </button>
+            >×</button>
           </div>
           <!-- New images  -->
           <div
               class="w-32 h-32 border border-dashed rounded flex items-center justify-center text-gray-400 cursor-pointer relative">
-            <input type="file" multiple class="opacity-0 absolute inset-0 cursor-pointer" @change="onFileSelected">
+            <input type="file" accept=".png,.jpg,.jpeg" multiple class="opacity-0 absolute inset-0 cursor-pointer" @change="onFileSelected">
             + Add
           </div>
         </div>
@@ -138,12 +132,12 @@ export default {
           formData.append('newImages', image);
         })
         await axios.post(`${API_BASE_URL}/api/superheroes`,formData)
-        alert('Hero added successfully!');
+        alert('Superhero added successfully!');
 
         this.$router.push('/');
       } catch (e) {
         console.error('Error:', e);
-        alert(e.response?.data?.error );
+        alert(e.response.data.error );
       }
 
     }
