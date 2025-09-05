@@ -3,7 +3,6 @@
 A full-stack web application (Vue.js + Node.js + PostgreSQL) built for a JavaScript Engineer test. It allows CRUD operations for a superheroes  with multiple images.
 
 ## Contents
-- [Overview](#overview)
 - [Requirements](#requirements)
 - [Environment Variables (.env)](#environment-variables-env)
 - [Local Installation and Running](#local-installation-and-running)
